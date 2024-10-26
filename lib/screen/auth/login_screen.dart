@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:sims_ppob_andre/exception/auth_exception.dart';
+import 'package:sims_ppob_andre/screen/auth/register_screen.dart';
+import 'package:sims_ppob_andre/screen/navigator/navigator.dart';
 import 'package:sims_ppob_andre/theme.dart';
 import 'package:sims_ppob_andre/utils/text_roboto.dart';
 import 'package:sims_ppob_andre/widget/custom_button.dart';
@@ -34,31 +36,31 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return LoadingOverlay(
-      isLoading: isLoading,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildLogo(),
-                    const SizedBox(height: 24),
-                    buildHeaderText(),
-                    const SizedBox(height: 24),
-                    buildEmailField(),
-                    const SizedBox(height: 18),
-                    buildPasswordField(),
-                    const SizedBox(height: 24),
-                    buildLoginButton(),
-                    const SizedBox(height: 16),
-                    buildToRegister(),
-                  ],
+    return SafeArea(
+      child: LoadingOverlay(
+        isLoading: isLoading,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 50),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      logo(),
+                      const SizedBox(height: 24),
+                      header(),
+                      const SizedBox(height: 24),
+                      formBody(),
+                      const SizedBox(height: 18),
+                      loginButton(),
+                      const SizedBox(height: 16),
+                      textToRegister(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -68,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildLogo() {
+  Widget logo() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -79,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildHeaderText() {
+  Widget header() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -91,45 +93,55 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildEmailField() {
-    return CustomTextField(
-      controller: emailController,
-      hintText: 'Email',
-      hintStyle: hintTextStyle,
-      prefixIcon: const Icon(Icons.alternate_email),
-      isError: isEmailError,
-      validator: (value) {
-        return _validateField(value, validateEmail);
-      },
+  Widget formBody() {
+    return Column(
+      children: [
+        CustomTextField(
+          controller: emailController,
+          hintText: 'Email',
+          hintStyle: hintTextStyle,
+          prefixIcon: const Icon(Icons.alternate_email),
+          isError: isEmailError,
+          validator: (value) {
+            return _validateField(value, validateEmail);
+          },
+        ),
+        const SizedBox(height: 18),
+        CustomTextField(
+          controller: passwordController,
+          hintText: 'Password',
+          hintStyle: hintTextStyle,
+          prefixIcon: const Icon(Icons.lock_rounded),
+          isPassword: true,
+          isError: isPasswordError,
+          validator: (value) {
+            return _validateField(value, validatePassword);
+          },
+        ),
+      ],
     );
   }
 
-  Widget buildPasswordField() {
-    return CustomTextField(
-      controller: passwordController,
-      hintText: 'Password',
-      hintStyle: hintTextStyle,
-      prefixIcon: const Icon(Icons.lock_rounded),
-      isPassword: true,
-      isError: isPasswordError,
-      validator: (value) {
-        return _validateField(value, validatePassword);
-      },
-    );
-  }
-
-  Widget buildLoginButton() {
+  Widget loginButton() {
     return CustomButton(onPressed: onLoginPressed, text: 'Masuk');
   }
 
-  Widget buildToRegister() {
-    return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-      Roboto.light(text: 'Belum punya akun? Registrasi', fontSize: 14),
-      TextButton(
-          onPressed: () {},
-          child:
-              Roboto.bold(text: 'di sini', fontSize: 14, color: primaryColor))
-    ]);
+  Widget textToRegister() {
+    return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Roboto.light(text: 'Belum punya akun? Registrasi ', fontSize: 14),
+          GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterScreen()));
+              },
+              child: Roboto.bold(
+                  text: 'di sini', fontSize: 14, color: primaryColor))
+        ]);
   }
 
   void showCustomSnackBar(
@@ -151,6 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void onLoginPressed() async {
+    FocusScope.of(context).unfocus();
     if (formKey.currentState!.validate()) {
       setState(() {
         isLoading = true;
@@ -161,10 +174,14 @@ class _LoginScreenState extends State<LoginScreen> {
           passwordController.text,
         );
         showCustomSnackBar(context, 'Login berhasil', Colors.green);
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const NavigatorPage(id: 0)));
       } on AuthException catch (e) {
         showCustomSnackBar(context, e.message, Colors.red);
       } catch (e) {
-        print('Error: $e'); // Mencetak kesalahan yang tidak terduga
+        print('Error: $e');
         showCustomSnackBar(context, 'An unexpected error occurred', Colors.red);
       } finally {
         setState(() {

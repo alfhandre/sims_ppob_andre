@@ -8,6 +8,7 @@ class CustomSnackBar {
       content: Roboto.regular(text: message, fontSize: 14, color: textColor),
       backgroundColor: backgroundColor,
       behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2),
       action: SnackBarAction(
         label: 'x',
         textColor: textColor,

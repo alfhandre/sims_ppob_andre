@@ -6,13 +6,13 @@ class StorageUtil {
   static Future<void> saveToken(String token) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
-    print('Token saved: $token');
+    // print('Token saved: $token');
   }
 
   static Future<String?> getToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString(_tokenKey);
-    print('Retrieved token: $token');
+    // print('Retrieved token: $token');
     return token;
   }
 

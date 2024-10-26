@@ -9,7 +9,7 @@ import '../utils/storage_util.dart';
 class AuthService {
   final Url urlProvider = Url();
 
-  Future<User?> login(String email, String password) async {
+  Future<TokenModel?> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('${urlProvider.getVal()}login'),
       headers: {
@@ -38,9 +38,29 @@ class AuthService {
       }
 
       await StorageUtil.saveToken(token);
-      return User(token: token);
+      return TokenModel(token: token);
     } else {
       throw AuthException(jsonResponse['message'] ?? 'An error occurred');
+    }
+  }
+
+  Future<UserData?> fetchAccount() async {
+    try {
+      String? token = await StorageUtil.getToken();
+      final res = await http.get(
+        Uri.parse('${urlProvider.getVal()}profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final Map<String, dynamic> jsonResponse = json.decode(res.body);
+      return UserData.fromJson(jsonResponse);
+    } catch (e) {
+      print('Error fetching account: $e');
+
+      return null;
     }
   }
 }

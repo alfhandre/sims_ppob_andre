@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sims_ppob_andre/models/service_model.dart';
+import 'package:sims_ppob_andre/screen/navigator/navigator.dart';
 import 'package:sims_ppob_andre/theme.dart';
 import 'package:sims_ppob_andre/utils/text_roboto.dart';
 
@@ -39,7 +40,10 @@ class CustomAlertDialog extends StatelessWidget {
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NavigatorPage(id: 0)));
                 },
                 child: Roboto.bold(
                     textAlign: TextAlign.center,

@@ -24,8 +24,42 @@ class _CustomButtonState extends State<CustomButton> {
       child: Center(
         child: Roboto.regular(
           text: widget.text,
-          fontSize: 18,
+          fontSize: 16,
           color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class CustomButtonBorder extends StatefulWidget {
+  final void Function() onPressed;
+  final String text;
+  const CustomButtonBorder(
+      {super.key, required this.onPressed, required this.text});
+
+  @override
+  State<CustomButtonBorder> createState() => _CustomButtonBorderState();
+}
+
+class _CustomButtonBorderState extends State<CustomButtonBorder> {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: widget.onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Colors.red, width: 1),
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+      child: Center(
+        child: Roboto.regular(
+          text: widget.text,
+          fontSize: 16,
+          color: Colors.red,
         ),
       ),
     );

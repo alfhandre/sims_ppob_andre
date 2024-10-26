@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sims_ppob_andre/screen/navigator/akun_screen.dart';
 import 'package:sims_ppob_andre/screen/navigator/home_screen.dart';
 import 'package:sims_ppob_andre/screen/navigator/topup_screen.dart';
-import 'package:sims_ppob_andre/screen/navigator/transaction_screen.dart';
+import 'package:sims_ppob_andre/screen/navigator/history_transaction_screen.dart';
 
 class NavigatorPage extends StatefulWidget {
   final int id;

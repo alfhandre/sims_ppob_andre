@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sims_ppob_andre/providers/balance_provider.dart';
 import 'package:sims_ppob_andre/theme.dart';
 import 'package:sims_ppob_andre/utils/text_roboto.dart';
 import 'package:sims_ppob_andre/widget/alert_dialog.dart';
@@ -8,8 +10,9 @@ import 'package:sims_ppob_andre/widget/custom_button.dart';
 
 class PembayaranScreen extends StatefulWidget {
   final ServiceModel service;
+  final int? saldo;
 
-  const PembayaranScreen({super.key, required this.service});
+  const PembayaranScreen({super.key, required this.service, this.saldo});
 
   @override
   State<PembayaranScreen> createState() => _PembayaranScreenState();
@@ -34,7 +37,7 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
           children: [
             SaldoCard(
               viewSaldo: false,
-              saldo: 1000,
+              saldo: widget.saldo ?? 0,
               isSaldoVisible: true,
               onToggleVisibility: () {
                 setState(() {});
@@ -70,23 +73,43 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
               ),
             ),
             const Spacer(),
-            CustomButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (context) => AlertDialogPayment(
-                          service: widget.service,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            showDialog(
-                                context: context,
-                                builder: (context) => CustomAlertDialog(
-                                      service: widget.service,
-                                      status: false,
-                                    ));
-                          }));
-                },
-                text: 'Bayar')
+            widget.saldo! <= widget.service.serviceTariff
+                ? Center(
+                    child: Roboto.bold(
+                        text: 'Saldo anda tidak cukup',
+                        fontSize: 14,
+                        color: Colors.red))
+                : CustomButton(
+                    onPressed: () async {
+                      final balanceProvider =
+                          Provider.of<BalanceProvider>(context, listen: false);
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialogPayment(
+                              service: widget.service,
+                              onPressed: () async {
+                                try {
+                                  await balanceProvider
+                                      .transaction(widget.service.serviceCode);
+                                  Navigator.of(context).pop();
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => CustomAlertDialog(
+                                            service: widget.service,
+                                            status: true,
+                                          ));
+                                } catch (e) {
+                                  Navigator.of(context).pop();
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => CustomAlertDialog(
+                                            service: widget.service,
+                                            status: false,
+                                          ));
+                                }
+                              }));
+                    },
+                    text: 'Bayar')
           ],
         ),
       ),

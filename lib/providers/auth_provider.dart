@@ -5,38 +5,44 @@ import '../utils/storage_util.dart';
 import '../utils/jwt_util.dart';
 
 class AuthProvider with ChangeNotifier {
-  User? _user;
+  TokenModel? _token;
+  UserData? _user;
   final AuthService _apiService = AuthService();
 
-  User? get user => _user;
+  TokenModel? get token => _token;
+  UserData? get user => _user;
 
   Future<void> login(String email, String password) async {
-    _user = await _apiService.login(email, password);
-    if (_user != null) {
-      await StorageUtil.saveToken(_user!.token); // Simpan token yang benar
+    _token = await _apiService.login(email, password);
+    if (_token != null) {
+      await StorageUtil.saveToken(_token!.token);
     }
     notifyListeners();
   }
 
+  Future<void> fetchAccount() async {
+    _user = await _apiService.fetchAccount();
+    notifyListeners();
+  }
+
   bool get isAuthenticated {
-    return _user != null;
+    return _token != null;
   }
 
   Future<void> checkToken() async {
     String? token = await StorageUtil.getToken();
-    print('Checking token: $token'); // Debug log
+    print('Checking token: $token');
     if (token != null) {
       if (JwtUtil.isTokenExpired(token) ||
           JwtUtil.isTokenOlderThan(token, Duration(hours: 12))) {
-        print(
-            'Token is expired or older than 12 hours, logging out'); // Debug log
+        print('Token is expired or older than 12 hours, logging out');
         await logout();
       }
     }
   }
 
   Future<void> logout() async {
-    _user = null;
+    _token = null;
     await StorageUtil.deleteToken();
     notifyListeners();
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:sims_ppob_andre/providers/balance_provider.dart';
 import 'package:sims_ppob_andre/providers/banner_provider.dart';
 import 'package:sims_ppob_andre/providers/service_provider.dart';
 import 'package:sims_ppob_andre/utils/storage_util.dart';
@@ -29,10 +30,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
-        ChangeNotifierProvider(
-            create: (_) => ServiceProvider()..fetchServices()),
-        ChangeNotifierProvider(
-            create: (context) => BannerProvider()..fetchBanners()),
+        ChangeNotifierProvider(create: (context) => BalanceProvider()),
+        ChangeNotifierProvider(create: (_) => ServiceProvider()),
+        ChangeNotifierProvider(create: (context) => BannerProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

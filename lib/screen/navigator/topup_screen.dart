@@ -26,46 +26,48 @@ class _TopupScreenState extends State<TopupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         foregroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: Colors.black,
         title: Roboto.bold(text: 'Top Up', fontSize: 14),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-            vertical: 8.0, horizontal: defaultMargin),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SaldoCard(
-              viewSaldo: false,
-              saldo: 0,
-              isSaldoVisible: true,
-              onToggleVisibility: () {
-                setState(() {});
-              },
-            ),
-            const SizedBox(height: 32),
-            Roboto.regular(text: 'Silahkan masukan', fontSize: 16),
-            Roboto.bold(text: 'nominal Top Up', fontSize: 18),
-            const SizedBox(height: 32),
-            CustomTextField(
-              keyboardType: TextInputType.number,
-              controller: topUpAmountController,
-              hintText: 'masukan nominal Top Up',
-              hintStyle: hintTextStyle,
-              prefixIcon: const Icon(Icons.money),
-            ),
-            const SizedBox(height: 16),
-            _buildCurrencySelectionRow(
-                ['Rp. 10.000', 'Rp. 20.000', 'Rp. 50.000']),
-            const SizedBox(height: 16),
-            _buildCurrencySelectionRow(
-                ['Rp. 100.000', 'Rp. 250.000', 'Rp. 500.000']),
-            const SizedBox(height: 32),
-            CustomButton(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: 8.0, horizontal: defaultMargin),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SaldoCard(
+                viewSaldo: false,
+                saldo: 0,
+                isSaldoVisible: true,
+                onToggleVisibility: () {
+                  setState(() {});
+                },
+              ),
+              const SizedBox(height: 32),
+              Roboto.regular(text: 'Silahkan masukan', fontSize: 16),
+              Roboto.bold(text: 'nominal Top Up', fontSize: 18),
+              const SizedBox(height: 32),
+              CustomTextField(
+                keyboardType: TextInputType.number,
+                controller: topUpAmountController,
+                hintText: 'masukan nominal Top Up',
+                hintStyle: hintTextStyle,
+                prefixIcon: const Icon(Icons.money),
+              ),
+              const SizedBox(height: 16),
+              _buildCurrencySelectionRow(
+                  ['Rp. 10.000', 'Rp. 20.000', 'Rp. 50.000']),
+              const SizedBox(height: 16),
+              _buildCurrencySelectionRow(
+                  ['Rp. 100.000', 'Rp. 250.000', 'Rp. 500.000']),
+              const SizedBox(height: 32),
+              CustomButton(
                 onPressed: () {
                   try {
                     String cleanText = topUpAmountController.text
@@ -77,8 +79,10 @@ class _TopupScreenState extends State<TopupScreen> {
                     print("Invalid input, not an integer");
                   }
                 },
-                text: 'Top Up')
-          ],
+                text: 'Top Up',
+              ),
+            ],
+          ),
         ),
       ),
     );

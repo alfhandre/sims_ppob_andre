@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sims_ppob_andre/models/service_model.dart';
+import 'package:sims_ppob_andre/models/user_model.dart';
+import 'package:sims_ppob_andre/providers/auth_provider.dart';
+import 'package:sims_ppob_andre/providers/balance_provider.dart';
 import 'package:sims_ppob_andre/screen/pembayaran_screen.dart';
 import 'package:sims_ppob_andre/theme.dart';
 import 'package:sims_ppob_andre/utils/text_roboto.dart';
@@ -16,16 +19,36 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final int saldo = 10000;
+  int? saldo;
   bool isSaldoVisible = true;
+  bool isLoading = true;
+  UserData? user;
 
   @override
   void initState() {
     super.initState();
+    _fetchData();
+  }
 
-    Future.microtask(() {
-      Provider.of<ServiceProvider>(context, listen: false).fetchServices();
-      Provider.of<BannerProvider>(context, listen: false).fetchBanners();
+  void _fetchData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await Provider.of<BalanceProvider>(context, listen: false).fetchBalance();
+
+    await Future.wait([
+      Provider.of<ServiceProvider>(context, listen: false).fetchServices(),
+      Provider.of<BannerProvider>(context, listen: false).fetchBanners(),
+      Provider.of<AuthProvider>(context, listen: false).fetchAccount(),
+    ]);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        user = Provider.of<AuthProvider>(context, listen: false).user;
+        saldo = Provider.of<BalanceProvider>(context, listen: false).balance;
+        isLoading = false;
+      });
     });
   }
 
@@ -43,7 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 header(),
                 const SizedBox(height: 24),
-                body(context),
+                if (isLoading) loadingIndicator(),
+                if (!isLoading) body(context),
               ],
             ),
           ),
@@ -52,7 +76,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget loadingIndicator() {
+    return Center(child: CircularProgressIndicator(color: primaryColor));
+  }
+
   Widget header() {
+    final profileImage = user?.profileImage ?? '';
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -64,7 +94,13 @@ class _HomeScreenState extends State<HomeScreen> {
             Roboto.bold(text: 'SIMS PPOB', fontSize: 14),
           ],
         ),
-        Image.asset('assets/pictures/Profile Photo.png', width: 28),
+        CircleAvatar(
+          radius: 14,
+          backgroundImage: profileImage.isEmpty
+              ? const AssetImage('assets/pictures/Profile Photo-1.png')
+                  as ImageProvider<Object>
+              : NetworkImage(profileImage),
+        ),
       ],
     );
   }
@@ -74,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Roboto.regular(text: 'Selamat datang,', fontSize: 18),
-        Roboto.bold(text: 'Andre Lutfiansyah', fontSize: 20),
+        greetUser(),
         const SizedBox(height: 24),
         cardSaldo(),
         const SizedBox(height: 16),
@@ -85,10 +121,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget greetUser() {
+    final firstName = user?.firstName ?? '';
+    final lastName = user?.lastName ?? '';
+    return Roboto.bold(text: '$firstName $lastName', fontSize: 20);
+  }
+
   Widget cardSaldo() {
     return SaldoCard(
       viewSaldo: true,
-      saldo: saldo,
+      saldo: saldo ?? 0,
       isSaldoVisible: isSaldoVisible,
       onToggleVisibility: () {
         setState(() {
@@ -100,10 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget menu(BuildContext context) {
     return Consumer<ServiceProvider>(builder: (context, provider, child) {
-      if (provider.isLoading) {
-        return Center(child: CircularProgressIndicator(color: primaryColor));
-      }
-
       final menuItems = provider.services;
 
       if (menuItems.isEmpty) {
@@ -136,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PembayaranScreen(service: item),
+            builder: (context) => PembayaranScreen(service: item, saldo: saldo),
           ),
         );
       },
@@ -158,10 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget bannerSlide(BuildContext context) {
     return Consumer<BannerProvider>(builder: (context, provider, child) {
-      if (provider.isLoading) {
-        return Center(child: CircularProgressIndicator(color: primaryColor));
-      }
-
       final bannerItems = provider.banners;
 
       if (bannerItems.isEmpty) {

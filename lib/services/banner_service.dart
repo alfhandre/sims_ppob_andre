@@ -8,13 +8,11 @@ class BannerService {
   final Url urlProvider = Url();
 
   Future<List<BannerModel>> fetchBanners() async {
-    final serviceUrl = '${urlProvider.getVal()}banner';
-
     try {
       String? token = await StorageUtil.getToken();
 
       final response = await http.get(
-        Uri.parse(serviceUrl),
+        Uri.parse('${urlProvider.getVal()}banner'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
